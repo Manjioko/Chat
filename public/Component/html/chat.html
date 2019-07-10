@@ -3,24 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+    <link rel="stylesheet"  href="static/Css/chat.css" type="text/css">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Chat Home</title>
     <script src="/socket.io/socket.io.js"></script>
-    <script>
-        (() => {
-            var socket = io();
-            socket.emit('chat message', "Hello World!");
-
-            socket.on('chat message', function(msg){
-
-            });
-        })();
-    </script>
 </head>
 <body>
-    <h1>Chat Home</h1>
+    <ul id="messages"></ul>
+    <div id="chatBox">
+        <input id="m" autocomplete="off" /><button id="btn">Send</button>
+    </div>
 </body>
 <script>
-    console.log(sessionStorage.getItem("username"));
+    let socket = io();
+    (() => {
+        var username = sessionStorage.getItem("username");
+        if(username) {
+            socket.emit('logined message', username);
+        } else {
+            setTimeout("window.location.href='/'",0);
+        }
+    })();
+    document.getElementById("btn").addEventListener('click', e => {
+        e.preventDefault();
+        let message = document.getElementById("m");
+        socket.emit('chat message',message.value);
+        message.value = '';
+        console.log("hello world.");
+        socket.on('chat message',function(msg){ 
+            // console.log("hello world.");
+        });
+            
+    });
 </script>
 </html>

@@ -3,11 +3,12 @@ var app = express();
 var path = require("path");
 var http = require("http").createServer(app);
 var io = require("socket.io")(http);
+var username = {};
 
 app.use('/static', express.static(path.join(__dirname, 'public')));
 
 app.get('/',function(req,res,next){
-     res.sendFile(__dirname + "//public/Component/html/login.html");
+     res.sendFile(__dirname + "/public/Component/html/login.html");
 });
 
 app.get('/chatHome',function(req,res){
@@ -15,14 +16,27 @@ app.get('/chatHome',function(req,res){
 }); 
 
 io.on("connection", function(socket) {
-    console.log("a user connection.");
-    // console.log(socket.id);
+    socket.on('logined message',function(msg) {
+        console.log(msg + " is connected.");
+        username[socket.id] = msg;
+        // username.push(msg);
+        console.log(username);
+    });
+    
     socket.on('disconnect', function(){
-        console.log('user disconnected');
+        //console.log(socket.id);
+        if(username.hasOwnProperty(socket.id)) {
+            console.log(username[socket.id] + ' is disconnected');
+            delete username[socket.id];
+            console.log(username);
+        } else {
+            console.log('user disconnected');
+        }
+        
     });
     socket.on('chat message',function(msg) {
-        console.log('message: ' + msg);
-        io.emit('chat message',msg);
+        console.log(username[socket.id] + ': ' +msg);
+        io.emit('chat message',username[socket.id] + ': ' +msg);
     });
 
 });
